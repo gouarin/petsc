@@ -365,6 +365,18 @@ cdef class PC(Object):
         cdef PetscBool cdosort = asBool(dosort)
         CHKERR( PCASMSetSortIndices(self.pc, cdosort) )
 
+    def getASMLocalSubdomains(self):
+        cdef PetscInt n
+        cdef PetscIS *isets = NULL
+        cdef PetscIS *isets_local = NULL
+        CHKERR( PCASMGetLocalSubdomains(self.pc, &n, &isets, &isets_local) )
+        p_is = [ref_IS(isets[i]) for i from 0 <= i <n]
+        if isets_local != NULL:
+            p_is_local = [ref_IS(isets_local[i]) for i from 0 <= i <n]
+        else:
+            p_is_local = None
+        return p_is, p_is_local
+
     # --- GASM ---
 
     def setGASMType(self, gasmtype):
@@ -415,7 +427,7 @@ cdef class PC(Object):
         cdef PetscMat pmat = NULL
         if mat is not None: pmat = mat.mat
         CHKERR( PCHYPRESetBetaPoissonMatrix(self.pc, pmat) )
-    
+
     def setHYPRESetInterpolations(self, dim, Mat RT_Pi_Full=None, RT_Pi=None,
                                   Mat ND_Pi_Full=None, ND_Pi=None):
         cdef PetscMat RT_full_mat = NULL
@@ -439,8 +451,8 @@ cdef class PC(Object):
                                          ND_full_mat, ND_Pi_mat))
         CHKERR (PetscFree(RT_Pi_mat))
         CHKERR (PetscFree(ND_Pi_mat))
-       
-       
+
+
 
     def setHYPRESetEdgeConstantVectors(self, Vec ozz, Vec zoz, Vec zzo=None):
         cdef PetscVec zzo_vec = NULL

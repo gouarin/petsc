@@ -227,3 +227,9 @@ cdef class _IS_buffer:
                         typestr=typestr)
 
 # --------------------------------------------------------------------
+
+#cdef inline IS ref_IS(PetscIS iset):
+#    cdef IS ob = <IS> IS()
+#    ob.iset = iset
+#    PetscINCREF(ob.obj)
+#    return ob
